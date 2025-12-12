@@ -1,0 +1,6 @@
+id,name,price,category,stock
+I001,Chicken,15000,Food,100
+I002,Drink,5000,Beverage,100
+I003,Rice,5000,Food,100
+I004,French Fries,10000,Side,50
+I005,Nugget,12000,Side,50

@@ -28,8 +28,8 @@ DATA_DIR = "data"                                                    # folder te
 FILES = {                                                            # dictionary yang mengubah nama dataset ke file CSV
     "users": os.path.join(DATA_DIR, "users.csv"),
     # "menu": os.path.join(DATA_DIR, "namafile"),
-    # "orders": os.path.join(DATA_DIR, "namafile"),
-    # "items": os.path.join(DATA_DIR, "namafile")
+    "orders": os.path.join(DATA_DIR, "orders.csv"),
+    "items": os.path.join(DATA_DIR, "items.csv")
 }
 
 def init_db():                                                       # membuat folder database dan menjalankan file CSV
@@ -53,8 +53,19 @@ def init_db():                                                       # membuat f
     #     ]
 
     # 3. ORDERS
+    if not os.path.exists(FILES["orders"]):
+        pd.DataFrame(columns=["id", "waiter", "customer", "total", "date", "status"]).to_csv(FILES["orders"], index=False)
 
     # 4. ITEMS
+    if not os.path.exists(FILES["items"]):
+        items_data = [
+            {"id": "I001", "name": "Chicken", "price": "15000", "category": "Food", "stock": "100"},
+            {"id": "I002", "name": "Drink", "price": "5000", "category": "Beverage", "stock": "100"},
+            {"id": "I003", "name": "Rice", "price": "5000", "category": "Food", "stock": "100"},
+            {"id": "I004", "name": "French Fries", "price": "10000", "category": "Side", "stock": "50"},
+            {"id": "I005", "name": "Nugget", "price": "12000", "category": "Side", "stock": "50"},
+        ]
+        pd.DataFrame(items_data).to_csv(FILES["items"], index=False)
 
 def get_df(key):
     try:
@@ -104,7 +115,124 @@ class LoginFrame(ctk.CTkFrame):                                      # UI khusus
         else:
             messagebox.showerror("ERROR", "LOGIN GAGAL")
 
-# class OrderFrame(ctk.CTkFrame):
+class OrderFrame(ctk.CTkFrame):
+    def __init__(self, master, username, role):
+        super().__init__(master)
+        self.username = username
+        self.role = role
+        self.cart = {} # {item_id: quantity}
+
+        # Layout
+        self.grid_columnconfigure(0, weight=3) # Menu area
+        self.grid_columnconfigure(1, weight=1) # Cart area
+        self.grid_rowconfigure(0, weight=1)
+
+        # Left: Menu
+        self.menu_frame = ctk.CTkScrollableFrame(self, label_text="MENU")
+        self.menu_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        
+        # Right: Cart
+        self.cart_frame = ctk.CTkFrame(self)
+        self.cart_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+        
+        ctk.CTkLabel(self.cart_frame, text="ORDER SUMMARY", font=("Arial", 18, "bold")).pack(pady=10)
+        self.cart_list = ctk.CTkScrollableFrame(self.cart_frame)
+        self.cart_list.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        self.total_label = ctk.CTkLabel(self.cart_frame, text="Total: Rp 0", font=("Arial", 16, "bold"))
+        self.total_label.pack(pady=10)
+        
+        curr_row = 0
+        if role != 'pembeli':
+             self.customer_entry = ctk.CTkEntry(self.cart_frame, placeholder_text="Customer Name")
+             self.customer_entry.pack(pady=5, padx=10, fill="x")
+
+        ctk.CTkButton(self.cart_frame, text="CHECKOUT", fg_color="green", command=self.checkout).pack(pady=20, fill="x", padx=10)
+        
+        self.load_menu()
+
+    def load_menu(self):
+        df_items = get_df("items")
+        if df_items.empty:
+            ctk.CTkLabel(self.menu_frame, text="No items available").pack(pady=20)
+            return
+
+        row, col = 0, 0
+        for index, row_data in df_items.iterrows():
+            self.create_item_card(row_data).grid(row=row, column=col, padx=10, pady=10, sticky="ew")
+            col += 1
+            if col > 2: # 3 items per row
+                col = 0
+                row += 1
+
+    def create_item_card(self, item):
+        card = ctk.CTkFrame(self.menu_frame, border_width=1)
+        
+        ctk.CTkLabel(card, text=item['name'], font=("Arial", 16, "bold")).pack(pady=(10,5))
+        ctk.CTkLabel(card, text=f"Rp {item['price']}").pack(pady=5)
+        ctk.CTkButton(card, text="ADD", width=100, command=lambda: self.add_to_cart(item)).pack(pady=10, padx=10)
+        
+        return card
+
+    def add_to_cart(self, item):
+        item_id = item['id']
+        if item_id in self.cart:
+            self.cart[item_id]['qty'] += 1
+        else:
+            self.cart[item_id] = {'name': item['name'], 'price': int(item['price']), 'qty': 1}
+        self.update_cart_ui()
+
+    def update_cart_ui(self):
+        for w in self.cart_list.winfo_children():
+            w.destroy()
+        
+        total = 0
+        for item_id, data in self.cart.items():
+            subtotal = data['price'] * data['qty']
+            total += subtotal
+            
+            row = ctk.CTkFrame(self.cart_list, fg_color="transparent")
+            row.pack(fill="x", pady=2)
+            ctk.CTkLabel(row, text=f"{data['name']} x{data['qty']}", font=("Arial", 12)).pack(side="left", padx=5)
+            ctk.CTkLabel(row, text=f"Rp {subtotal}", font=("Arial", 12, "bold")).pack(side="right", padx=5)
+        
+        self.total_label.configure(text=f"Total: Rp {total}")
+
+    def checkout(self):
+        if not self.cart:
+            return messagebox.showwarning("Empty", "Cart is empty!")
+            
+        customer_name = self.username
+        if self.role != 'pembeli':
+             customer_name = self.customer_entry.get()
+             if not customer_name:
+                 return messagebox.showwarning("Missing Info", "Please enter customer name!")
+
+        total = sum(d['price'] * d['qty'] for d in self.cart.values())
+        order_id = str(uuid.uuid4())[:8]
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        new_order = {
+            "id": order_id,
+            "waiter": self.username if self.role in ['waiter', 'cashier'] else 'Self',
+            "customer": customer_name,
+            "total": total,
+            "date": date,
+            "status": "Pending"
+        }
+        
+        try:
+            df_orders = get_df("orders")
+            df_orders = pd.concat([df_orders, pd.DataFrame([new_order])], ignore_index=True)
+            save_df("orders", df_orders)
+            
+            messagebox.showinfo("Success", f"Order {order_id} Placed!\nTotal: Rp {total}")
+            self.cart = {}
+            self.update_cart_ui()
+            if self.role != 'pembeli': self.customer_entry.delete(0, 'end')
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save order: {e}")
 
 # class WaiterMapFrame(ctk.CTkFrame):
 

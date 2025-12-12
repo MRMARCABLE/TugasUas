@@ -1,0 +1,5 @@
+username,password,role
+admin,123,admin
+cashier,123,cashier
+waiter,123,waiter
+owner,123,owner
