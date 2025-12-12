@@ -1,2 +1,8 @@
 id,waiter,customer,total,date,status
 cfb85bb3,cashier,marc,25000,2025-12-12 15:20:35,Pending
+d4dfdfe2,Self,Guest,5000,2025-12-12 15:32:56,Pending
+39c061b7,Self,Guest,25000,2025-12-12 15:40:47,Pending
+a477b7de,Self,Guest,10000,2025-12-12 16:39:27,Pending
+4a59629f,Self,Guest,5000,2025-12-12 16:47:20,Pending
+4981cb22,Self,Guest,15000,2025-12-12 16:54:37,Pending
+3b36ee7d,Self,Meja 1,30000,2025-12-12 17:01:40,Pending
