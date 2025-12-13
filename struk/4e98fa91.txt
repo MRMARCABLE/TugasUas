@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : 4e98fa91
+Tanggal  : 2025-12-14 01:05:08
+Meja     : Meja 1
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 150000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!

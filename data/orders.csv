@@ -1,8 +1,16 @@
-id,waiter,customer,total,date,status,order_id
-,Self,Meja 2,25000,2025-12-12 21:51:23,Paid (QRIS),1674bb88
-,Self,Meja 1,47000,2025-12-13 20:16:27,Paid (QRIS),9529a676
-,Self,Meja 6,42000,2025-12-13 20:16:39,Paid (QRIS),78db26b9
-,Self,Meja 1,25000,2025-12-13 20:32:31,Paid (QRIS),b18f956a
-,Self,Meja 6,22000,2025-12-13 20:32:54,Paid (QRIS),c9e345b8
-,Self,Meja 1,32000,2025-12-13 20:40:16,Paid (QRIS),01768105
-,Self,Meja 5,10000,2025-12-13 20:46:42,Pending,a08c04f7
+id,waiter,customer,total,date,status,order_id,order_progress
+,Self,Meja 2,25000,2025-12-12 21:51:23,Paid (QRIS),1674bb88,Selesai
+,Self,Meja 1,47000,2025-12-13 20:16:27,Paid (QRIS),9529a676,Selesai
+,Self,Meja 6,42000,2025-12-13 20:16:39,Paid (QRIS),78db26b9,
+,Self,Meja 1,25000,2025-12-13 20:32:31,Paid (QRIS),b18f956a,Selesai
+,Self,Meja 6,22000,2025-12-13 20:32:54,Paid (QRIS),c9e345b8,
+,Self,Meja 1,32000,2025-12-13 20:40:16,Paid (QRIS),01768105,Selesai
+,Self,Meja 5,10000,2025-12-13 20:46:42,Paid (QRIS),a08c04f7,Selesai
+,Self,Meja 1,10000,2025-12-14 00:04:11,Paid (QRIS),da4567f3,Selesai
+,Self,Meja 1,15000,2025-12-14 00:17:43,Pending,05c494e2,Selesai
+,Self,Meja 1,30000,2025-12-14 00:29:03,Paid (QRIS),4e3365e5,Selesai
+,Self,Meja 1,30000,2025-12-14 00:29:57,Paid (QRIS),a3978218,Selesai
+,Self,Meja 5,17000,2025-12-14 00:30:12,Paid (QRIS),03045ca8,Selesai
+,Self,Meja 2,15000,2025-12-14 00:39:47,Paid,4478f299,Selesai
+,Self,Meja 1,150000,2025-12-14 01:05:08,Paid,4e98fa91,Masih Dibuatkan
+,Self,Meja 1,150000,2025-12-14 01:08:40,Paid,703244c6,Masih Dibuatkan

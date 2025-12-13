@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : a3978218
+Tanggal  : 2025-12-14 00:29:57
+Meja     : Meja 1
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 30000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!
