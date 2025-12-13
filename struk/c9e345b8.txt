@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : c9e345b8
+Tanggal  : 2025-12-13 20:32:54
+Meja     : Meja 6
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 22000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!

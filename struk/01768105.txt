@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : 01768105
+Tanggal  : 2025-12-13 20:40:16
+Meja     : Meja 1
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 32000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!

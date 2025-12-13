@@ -29,6 +29,7 @@ IMAGES_DIR = os.path.join(DATA_DIR, "images")        # dictionary yang mengubah 
 FILES = {
     "users": os.path.join(DATA_DIR, "users.csv"),
     "orders": os.path.join(DATA_DIR, "orders.csv"),
+    "order_details": os.path.join(DATA_DIR, "order_details.csv"),
     "items": os.path.join(DATA_DIR, "items.csv")
 }
 
@@ -60,6 +61,10 @@ def init_db():                                      # membuat folder database da
             {"id": "I005", "name": "Nugget", "price": "12000", "category": "Side", "stock": "50", "image": ""},
         ]
         pd.DataFrame(items_data).to_csv(FILES["items"], index=False)
+    
+    # order_details
+    if not os.path.exists(FILES["order_details"]):
+        pd.DataFrame(columns=["id", "order_id", "item_id", "name", "qty", "subtotal"]).to_csv(FILES["order_details"], index=False)
 
 def get_df(key):
     try:
@@ -305,6 +310,23 @@ class OrderFrame(ctk.CTkFrame):
         df_orders = pd.concat([df_orders, pd.DataFrame([new_order])], ignore_index=True)
         save_df("orders", df_orders)
 
+        # Save Order Details
+        details_list = []
+        for item_id, data in self.cart.items():
+            details_list.append({
+                "id": str(uuid.uuid4())[:8],
+                "order_id": order_id,
+                "item_id": item_id,
+                "name": data['name'],
+                "qty": data['qty'],
+                "subtotal": data['price'] * data['qty']
+            })
+        
+        if details_list:
+             df_details = get_df("order_details")
+             df_details = pd.concat([df_details, pd.DataFrame(details_list)], ignore_index=True)
+             save_df("order_details", df_details)
+
         messagebox.showinfo("Success", f"Order {order_id} Placed!\nTotal: Rp {total}")
 
         self.cart = {}
@@ -339,11 +361,36 @@ class CashierFrame(ctk.CTkFrame):
         if pending.empty:
             ctk.CTkLabel(self.list_frame, text="Tidak ada order Pending").pack(pady=20); return
 
+        df_details = get_df("order_details")
+
         for _, row in pending.iterrows():
             card = ctk.CTkFrame(self.list_frame, fg_color="#2b2b2b", corner_radius=8)
             card.pack(fill="x", padx=10, pady=6)
-            ctk.CTkLabel(card, text=f"Order: {row['order_id']}  | Meja: {row['customer']}  | Total: Rp {row['total']}", font=("Arial", 12)).pack(side="left", padx=10, pady=10)
-            ctk.CTkButton(card, text="Bayar (QRIS)", width=120, command=lambda oid=row['order_id']: self.open_payment(oid)).pack(side="right", padx=8, pady=8)
+            
+            # Info Container
+            info_frame = ctk.CTkFrame(card, fg_color="transparent")
+            info_frame.pack(side="left", padx=10, pady=10, fill="x", expand=True)
+
+            # Header
+            ctk.CTkLabel(info_frame, text=f"Order: {row['order_id']}  |  Meja: {row['customer']}", font=("Arial", 13, "bold"), text_color="white").pack(anchor="w")
+            
+            # Items
+            items_found = False
+            if not df_details.empty and 'order_id' in df_details.columns:
+                 items = df_details[df_details['order_id'] == row['order_id']]
+                 if not items.empty:
+                     items_found = True
+                     for _, item in items.iterrows():
+                         ctk.CTkLabel(info_frame, text=f"- {item['name']} x{item['qty']}", font=("Arial", 11), text_color="#ccc").pack(anchor="w", padx=(10,0))
+            
+            if not items_found:
+                ctk.CTkLabel(info_frame, text="(Detail tidak tersedia / Pesanan Lama)", font=("Arial", 10), text_color="orange").pack(anchor="w", padx=(10,0))
+
+            # Total
+            ctk.CTkLabel(info_frame, text=f"Total: Rp {row['total']}", font=("Arial", 13, "bold"), text_color="#2ECC71").pack(anchor="w", pady=(5,0))
+
+            # Action Button
+            ctk.CTkButton(card, text="Bayar (QRIS)", width=120, command=lambda oid=row['order_id']: self.open_payment(oid)).pack(side="right", padx=10, pady=10)
 
     def open_payment(self, order_id):
         df = get_df("orders")
@@ -568,6 +615,100 @@ class GraphFrame(ctk.CTkFrame):
         ax.set_title("Pendapatan Harian", color='white')
         ax.tick_params(colors='white'); ax.spines['bottom'].set_color('white'); ax.spines['left'].set_color('white')
         canvas = FigureCanvasTkAgg(fig, master=self); canvas.draw(); canvas.get_tk_widget().pack(fill="both", expand=True)
+
+# -----------------------
+# WaiterMapFrame
+# -----------------------
+class WaiterMapFrame(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        
+        self.grid_columnconfigure(0, weight=2)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Left: Map
+        self.left = ctk.CTkFrame(self)
+        self.left.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        
+        ctk.CTkLabel(self.left, text="DENAH MEJA", font=("Arial", 18, "bold")).pack(pady=15)
+        self.map = TableMap(self.left, role="waiter", command_callback=self.on_table_click)
+        self.map.pack(expand=True)
+        
+        ctk.CTkButton(self.left, text="Refresh Map", command=self.map.refresh_map).pack(pady=20)
+
+        # Right: Details
+        self.right = ctk.CTkFrame(self)
+        self.right.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+        
+        self.lbl_title = ctk.CTkLabel(self.right, text="Detail Pesanan", font=("Arial", 18, "bold"))
+        self.lbl_title.pack(pady=15)
+        
+        self.details_frame = ctk.CTkScrollableFrame(self.right, label_text="Daftar Item")
+        self.details_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+    def on_table_click(self, table_name, is_occupied):
+        self.lbl_title.configure(text=f"Pesanan: {table_name}")
+        for w in self.details_frame.winfo_children(): w.destroy()
+        
+        if not is_occupied:
+            ctk.CTkLabel(self.details_frame, text="Meja Kosong", text_color="gray").pack(pady=20)
+            return
+
+        df = get_df("orders")
+        if df.empty: return
+        
+        # Filter active orders for this table
+        table_orders = df[ (df['customer'] == table_name) & (df['status'] == 'Pending') ]
+        
+        if table_orders.empty:
+            ctk.CTkLabel(self.details_frame, text="Tidak ada order aktif", text_color="gray").pack(pady=20)
+            return
+            
+        total_all = 0
+        df_details = get_df("order_details")
+        
+        # Aggregate data
+        grand_total = 0
+        all_items = []
+
+        for _, row in table_orders.iterrows():
+            grand_total += float(row['total'])
+            order_id = row['order_id']
+            if not df_details.empty and 'order_id' in df_details.columns:
+                items = df_details[df_details['order_id'] == order_id]
+                for _, item in items.iterrows():
+                    all_items.append(f"- {item['name']} x{item['qty']}")
+        
+        # Display
+        # Header (Meja) - Already in self.lbl_title, but let's make a clear card
+        main_card = ctk.CTkFrame(self.details_frame, fg_color="#333", corner_radius=10)
+        main_card.pack(fill="x", pady=10, padx=5)
+        
+        ctk.CTkLabel(main_card, text=table_name, font=("Arial", 16, "bold"), text_color="#FFD700").pack(pady=(15,5))
+        
+        # Items List
+        item_box = ctk.CTkFrame(main_card, fg_color="transparent")
+        item_box.pack(fill="x", padx=15, pady=5)
+        
+        if not all_items:
+             if grand_total > 0:
+                  ctk.CTkLabel(item_box, text="(Pesanan lama - Detail tidak tersedia)", font=("Arial", 11), text_color="orange").pack()
+             else:
+                  ctk.CTkLabel(item_box, text="(No details available)", font=("Arial", 11), text_color="gray").pack()
+        else:
+            for itm in all_items:
+                ctk.CTkLabel(item_box, text=itm, font=("Arial", 12), text_color="white").pack(anchor="w")
+
+        ctk.CTkFrame(main_card, height=2, fg_color="gray").pack(fill="x", padx=10, pady=10)
+
+        # Grand Total
+        ctk.CTkLabel(main_card, text=f"Total: Rp {int(grand_total)}", font=("Arial", 14, "bold"), text_color="#2ECC71").pack(pady=(0,15))
+            
+        # Summary Area at bottom of right frame?
+        # For now just list them.
+        
+        # Add a served button? Maybe later.
 
 # -----------------------
 # MainApp

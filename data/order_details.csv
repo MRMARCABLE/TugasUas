@@ -1,0 +1,11 @@
+id,order_id,item_id,name,qty,subtotal
+8dbb478f,b18f956a,I001,Chicken,1,15000
+a1df65b9,b18f956a,I002,Drink,1,5000
+6e22df92,b18f956a,I003,Rice,1,5000
+10892065,c9e345b8,I004,French Fries,1,10000
+dad99d7e,c9e345b8,I005,Nugget,1,12000
+3ae60884,01768105,I001,Chicken,1,15000
+67481f62,01768105,I003,Rice,1,5000
+f3e87efb,01768105,I005,Nugget,1,12000
+caf9595f,a08c04f7,I002,Drink,1,5000
+e42bcd2f,a08c04f7,I003,Rice,1,5000
