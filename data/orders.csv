@@ -22,3 +22,6 @@ id,waiter,customer,total,date,status,order_id,order_progress
 ,Self,Meja 8,10000,2025-12-14 11:29:23,Paid,d0544d41,Selesai
 ,Self,Meja 8,12000,2025-12-14 11:31:51,Paid,8308efa2,Selesai
 ,Self,Meja 6,15000,2025-12-14 11:55:59,Paid,323b62dc,Selesai
+,Self,Meja 1,25000,2025-12-14 13:45:45,Paid,4c775758,Selesai
+,Self,Meja 6,37000,2025-12-14 13:46:00,Paid,a8d7a5a2,Selesai
+,Self,Meja 1,25000,2025-12-14 22:58:58,Paid,ee95f588,Selesai

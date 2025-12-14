@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : 4c775758
+Tanggal  : 2025-12-14 13:45:45
+Meja     : Meja 1
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 25000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!

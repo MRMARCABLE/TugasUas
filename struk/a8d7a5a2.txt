@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : a8d7a5a2
+Tanggal  : 2025-12-14 13:46:00
+Meja     : Meja 6
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 37000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!
