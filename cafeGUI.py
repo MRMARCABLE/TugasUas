@@ -426,11 +426,17 @@ class CashierFrame(ctk.CTkFrame):
         def confirm_payment():
             df2 = get_df("orders")
             
-            # --- BAGIAN YANG DIPERBAIKI ---
-            # SALAH: df2.loc[['order_id'] == order_id, ...]
-            # BENAR: df2.loc[df2['order_id'] == order_id, ...]
-            df2.loc[df2['order_id'] == order_id, ['status', 'order_progress']] = ['Paid', 'Masih Dibuatkan']
-            # ------------------------------
+            if df2[df2['order_id'] == order_id].empty:
+                messagebox.showerror("Error", "Order ID tidak ditemukan saat update.")
+                return
+            
+            current_progress = df2.loc[df2['order_id'] == order_id, 'order_progress'].values[0]
+            new_progress = current_progress
+            if new_progress == 'Belum Dibuat':
+                new_progress = 'Masih Dibuatkan'
+
+            df2.loc[df2['order_id'] == order_id, 'status'] = 'Paid'
+            df2.loc[df2['order_id'] == order_id, 'order_progress'] = new_progress
             
             save_df("orders", df2)
 

@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : 8308efa2
+Tanggal  : 2025-12-14 11:31:51
+Meja     : Meja 8
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 12000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!

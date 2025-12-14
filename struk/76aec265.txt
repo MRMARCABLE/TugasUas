@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : 76aec265
+Tanggal  : 2025-12-14 11:17:34
+Meja     : Meja 3
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 45000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!

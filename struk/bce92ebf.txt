@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : bce92ebf
+Tanggal  : 2025-12-14 11:03:03
+Meja     : Meja 1
+Kasir    : (system)
+
+--- ITEM (detail tidak tersedia) ---
+(Gunakan fitur itemized orders jika ingin detail item)
+
+-----------------------------
+TOTAL : Rp 15000
+-----------------------------
+Metode : QRIS
+-----------------------------
+Terima kasih!
