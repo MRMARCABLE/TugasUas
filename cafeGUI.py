@@ -1,6 +1,6 @@
-#   ========================================================================
-#                                  LIBRARY
-#   ========================================================================
+# ========================================================================
+# LIBRARY
+# ========================================================================
 import customtkinter as ctk
 import pandas as pd
 import os
@@ -14,44 +14,40 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import segno
 import io
 import shutil
-
-#   ========================================================================
-#                             CONFIGURASI TAMPILAN
-#   ========================================================================
-ctk.set_appearance_mode("Dark")           #untuk mengatur tampilan
-ctk.set_default_color_theme("blue")       #sama seperti keterangan di atas
-
-#   ========================================================================
-#                        DATABASE MANAGER (AUTO REPAIR)
-#   ========================================================================
-DATA_DIR = "data"                                    # folder tempat semua file CSV disimpan
-IMAGES_DIR = os.path.join(DATA_DIR, "images")        # dictionary yang mengubah nama dataset ke file CSV
+# ========================================================================
+# CONFIGURASI TAMPILAN
+# ========================================================================
+ctk.set_appearance_mode("Dark") #untuk mengatur tampilan
+ctk.set_default_color_theme("blue") #sama seperti keterangan di atas
+# ========================================================================
+# DATABASE MANAGER (AUTO REPAIR)
+# ========================================================================
+DATA_DIR = "data" # folder tempat semua file CSV disimpan
+IMAGES_DIR = os.path.join(DATA_DIR, "images") # dictionary yang mengubah nama dataset ke file CSV
 FILES = {
     "users": os.path.join(DATA_DIR, "users.csv"),
     "orders": os.path.join(DATA_DIR, "orders.csv"),
     "order_details": os.path.join(DATA_DIR, "order_details.csv"),
     "items": os.path.join(DATA_DIR, "items.csv")
 }
-
-def init_db():                                      # membuat folder database dan menjalankan file CSV
-    os.makedirs(DATA_DIR, exist_ok=True)            #os.makedirs() → membuat folder beserta subfolder jika perlu.
-    os.makedirs(IMAGES_DIR, exist_ok=True)          #DATA_DIR → nama folder yang ingin dibuat.
+def init_db(): # membuat folder database dan menjalankan file CSV
+    os.makedirs(DATA_DIR, exist_ok=True) #os.makedirs() → membuat folder beserta subfolder jika perlu.
+    os.makedirs(IMAGES_DIR, exist_ok=True) #DATA_DIR → nama folder yang ingin dibuat.
                                                     #exist_ok=True → jika folder sudah ada, tidak menimbulkan error.
     # users
-    if not os.path.exists(FILES["users"]):         # Mengecek apakah file users.csv sudah ada, jika belum akan membuat file user dahulu
+    if not os.path.exists(FILES["users"]): # Mengecek apakah file users.csv sudah ada, jika belum akan membuat file user dahulu
         users_data = [
             {"username": "admin", "password": "123", "role": "admin"},
             {"username": "cashier", "password": "123", "role": "cashier"},
             {"username": "waiter", "password": "123", "role": "waiter"},
             {"username": "owner", "password": "123", "role": "owner"},
         ]
-        pd.DataFrame(users_data).to_csv(FILES["users"], index=False)        # mengubah list dictionary menjadi DataFrame Pandas lalu
+        pd.DataFrame(users_data).to_csv(FILES["users"], index=False) # mengubah list dictionary menjadi DataFrame Pandas lalu
                                                                             # menyimpan DataFrame ke file CSV tanpa kolom index otomatis
-    # orders 
+    # orders
     if not os.path.exists(FILES["orders"]): #database transaksi
         pd.DataFrame(columns=["order_id", "waiter", "customer", "total", "date", "status", "order_progress"]).to_csv(FILES["orders"], index=False)
-
-    # items 
+    # items
     if not os.path.exists(FILES["items"]):
         items_data = [
             {"id": "I001", "name": "Chicken", "price": "15000", "category": "Food", "stock": "100", "image": ""},
@@ -61,26 +57,23 @@ def init_db():                                      # membuat folder database da
             {"id": "I005", "name": "Nugget", "price": "12000", "category": "Side", "stock": "50", "image": ""},
         ]
         pd.DataFrame(items_data).to_csv(FILES["items"], index=False)
-    
+   
     # order_details
     if not os.path.exists(FILES["order_details"]):
         pd.DataFrame(columns=["id", "order_id", "item_id", "name", "qty", "subtotal"]).to_csv(FILES["order_details"], index=False)
-
 def get_df(key):
     try:
-        df = pd.read_csv(FILES[key], dtype=str)      # Membaca file CSV menjadi DataFrame
+        df = pd.read_csv(FILES[key], dtype=str) # Membaca file CSV menjadi DataFrame
         return df
-    except Exception as e:                           # Jika file CSV bermasalah akan muncul teks eror
+    except Exception as e: # Jika file CSV bermasalah akan muncul teks eror
         print(f"Gagal membaca {key}: {e}")
         return pd.DataFrame()
-
-def save_df(key, df):                                # Menyimpan DataFrame kembali ke CSV
+def save_df(key, df): # Menyimpan DataFrame kembali ke CSV
     df.to_csv(FILES[key], index=False)
-
-#   ========================================================================
-#                                 TABLE MAP
-#   ========================================================================
-class TableMap(ctk.CTkFrame):               # Membuat kelas TableMap yang merupakan frame khusus untuk menampilkan denah meja
+# ========================================================================
+# TABLE MAP
+# ========================================================================
+class TableMap(ctk.CTkFrame): # Membuat kelas TableMap yang merupakan frame khusus untuk menampilkan denah meja
     def __init__(self, master, role, command_callback=None):
         super().__init__(master, fg_color="transparent")
         self.role = role
@@ -130,10 +123,9 @@ class TableMap(ctk.CTkFrame):               # Membuat kelas TableMap yang merupa
     def on_click(self, table_name, is_occupied):
         if self.callback:
             self.callback(table_name, is_occupied)
-
-#   ========================================================================
-#                                    FITUR
-#   ========================================================================
+# ========================================================================
+# FITUR
+# ========================================================================
 class LoginFrame(ctk.CTkFrame):
     def __init__(self, master, callback):
         super().__init__(master)
@@ -149,7 +141,7 @@ class LoginFrame(ctk.CTkFrame):
         ctk.CTkButton(box, text="Pelanggan (Guest)", fg_color="transparent", border_width=1, command=lambda: callback("pembeli", "Guest")).pack()
 
     def do_login(self, cb):
-        u, p = self.entry_u.get(), self.entry_p.get()     # Ambil input username dan password
+        u, p = self.entry_u.get(), self.entry_p.get() # Ambil input username dan password
         df = get_df("users")
         if df.empty:
             return messagebox.showerror("ERROR", "DATABASE USER KOSONG")
@@ -160,7 +152,7 @@ class LoginFrame(ctk.CTkFrame):
             messagebox.showerror("ERROR", "LOGIN GAGAL")
 
 # -----------------------
-# OrderFrame (with images support)
+# OrderFrame 
 # -----------------------
 class OrderFrame(ctk.CTkFrame):
     def __init__(self, master, username, role):
@@ -170,8 +162,7 @@ class OrderFrame(ctk.CTkFrame):
         self.cart = {}
         self.selected_table = None
         self.selected_category = "All"
-        self.image_cache = {}  # cache PhotoImage objects to prevent GC
-
+        self.image_cache = {} 
         # layout
         self.grid_columnconfigure(0, weight=3)
         self.grid_columnconfigure(1, weight=1)
@@ -252,7 +243,7 @@ class OrderFrame(ctk.CTkFrame):
                 lbl_img = ctk.CTkLabel(card, image=tkimg, text="")
                 lbl_img.pack(pady=(8,2))
             except Exception as e:
-                # fallback to no image
+                
                 ctk.CTkLabel(card, text="(no image)", font=("Arial", 10)).pack(pady=(8,2))
         else:
             ctk.CTkLabel(card, text="(no image)", font=("Arial", 10)).pack(pady=(8,2))
@@ -322,7 +313,7 @@ class OrderFrame(ctk.CTkFrame):
                 "qty": data['qty'],
                 "subtotal": data['price'] * data['qty']
             })
-        
+       
         if details_list:
              df_details = get_df("order_details")
              df_details = pd.concat([df_details, pd.DataFrame(details_list)], ignore_index=True)
@@ -335,7 +326,7 @@ class OrderFrame(ctk.CTkFrame):
         self.table_map.refresh_map()
 
 # -----------------------
-# CashierFrame: proses pembayaran (QRIS in-memory + Struk)
+# CashierFrame: proses pembayaran 
 # -----------------------
 class CashierFrame(ctk.CTkFrame):
     def __init__(self, master):
@@ -367,14 +358,14 @@ class CashierFrame(ctk.CTkFrame):
         for _, row in pending.iterrows():
             card = ctk.CTkFrame(self.list_frame, fg_color="#2b2b2b", corner_radius=8)
             card.pack(fill="x", padx=10, pady=6)
+           
             
-            # Info Container
             info_frame = ctk.CTkFrame(card, fg_color="transparent")
             info_frame.pack(side="left", padx=10, pady=10, fill="x", expand=True)
 
-            # Header
-            ctk.CTkLabel(info_frame, text=f"Order: {row['order_id']}   |   Meja: {row['customer']}", font=("Arial", 13, "bold"), text_color="white").pack(anchor="w")
             
+            ctk.CTkLabel(info_frame, text=f"Order: {row['order_id']} | Meja: {row['customer']}", font=("Arial", 13, "bold"), text_color="white").pack(anchor="w")
+           
             # Items
             items_found = False
             if not df_details.empty and 'order_id' in df_details.columns:
@@ -383,14 +374,14 @@ class CashierFrame(ctk.CTkFrame):
                      items_found = True
                      for _, item in items.iterrows():
                          ctk.CTkLabel(info_frame, text=f"- {item['name']} x{item['qty']}", font=("Arial", 11), text_color="#ccc").pack(anchor="w", padx=(10,0))
-            
+           
             if not items_found:
                 ctk.CTkLabel(info_frame, text="(Detail tidak tersedia / Pesanan Lama)", font=("Arial", 10), text_color="orange").pack(anchor="w", padx=(10,0))
 
-            # Total
+           
             ctk.CTkLabel(info_frame, text=f"Total: Rp {row['total']}", font=("Arial", 13, "bold"), text_color="#2ECC71").pack(anchor="w", pady=(5,0))
 
-            # Action Button
+            
             ctk.CTkButton(card, text="Bayar (QRIS)", width=120, command=lambda oid=row['order_id']: self.open_payment(oid)).pack(side="right", padx=10, pady=10)
 
     def open_payment(self, order_id):
@@ -425,7 +416,7 @@ class CashierFrame(ctk.CTkFrame):
 
         def confirm_payment():
             df2 = get_df("orders")
-            
+           
             if df2[df2['order_id'] == order_id].empty:
                 messagebox.showerror("Error", "Order ID tidak ditemukan saat update.")
                 return
@@ -437,51 +428,66 @@ class CashierFrame(ctk.CTkFrame):
 
             df2.loc[df2['order_id'] == order_id, 'status'] = 'Paid'
             df2.loc[df2['order_id'] == order_id, 'order_progress'] = new_progress
-            
+           
             save_df("orders", df2)
 
-            # create struk
+            # ==================== STRUK ====================
             struk_folder = "struk"
             os.makedirs(struk_folder, exist_ok=True)
             struk_path = os.path.join(struk_folder, f"{order_id}.txt")
 
+            # Ambil detail item untuk order ini
+            df_details = get_df("order_details")
+            items = pd.DataFrame()
+            if not df_details.empty and 'order_id' in df_details.columns:
+                items = df_details[df_details['order_id'] == order_id]
+
             with open(struk_path, "w", encoding="utf-8") as f:
-                f.write("===== STRUK PEMBAYARAN =====\n")
+                f.write("========== STRUK PEMBAYARAN ==========\n")
                 f.write(f"Order ID : {order_id}\n")
                 f.write(f"Tanggal  : {order['date']}\n")
                 f.write(f"Meja     : {order['customer']}\n")
                 f.write(f"Kasir    : (system)\n")
-                f.write("\n--- ITEM (detail tidak tersedia) ---\n")
-                f.write("(Gunakan fitur itemized orders jika ingin detail item)\n")
-                f.write("\n-----------------------------\n")
-                f.write(f"TOTAL : Rp {order['total']}\n")
-                f.write("-----------------------------\n")
-                f.write("Metode : QRIS\n")
-                f.write("-----------------------------\n")
-                f.write("Terima kasih!\n")
+                f.write("\n-------- DAFTAR PESANAN --------\n")
 
-            # show struk
+                if not items.empty:
+                    for _, item in items.iterrows():
+                        price_per_item = int(item['subtotal']) // int(item['qty'])
+                        f.write(f"{item['name']:<20} x{int(item['qty']):2} @Rp {price_per_item:>6} = Rp {int(item['subtotal']):>8}\n")
+                else:
+                    f.write(" (Detail item tidak tersedia)\n")
+
+                f.write("\n-------------------------------------\n")
+                f.write(f"TOTAL    : Rp {int(order['total']):>19}\n")
+                f.write("-------------------------------------\n")
+                f.write("Metode   : QRIS\n")
+                f.write("-------------------------------------\n")
+                f.write("Terima kasih telah berkunjung!\n")
+                f.write("=====================================\n")
+
+            # Tampilkan struk
             struk_win = ctk.CTkToplevel(self)
             struk_win.title("Struk Pembayaran")
-            struk_win.geometry("420x520")
+            struk_win.geometry("480x650")
             struk_win.grab_set()
-            ctk.CTkLabel(struk_win, text="STRUK PEMBAYARAN", font=("Arial", 16, "bold")).pack(pady=8)
-            text_widget = tk.Text(struk_win, wrap="word", font=("Consolas", 11))
+            ctk.CTkLabel(struk_win, text="STRUK PEMBAYARAN", font=("Arial", 16, "bold")).pack(pady=10)
+            text_widget = tk.Text(struk_win, wrap="word", font=("Consolas", 11), background="#1e1e1e", foreground="white")
             with open(struk_path, "r", encoding="utf-8") as ff:
                 content = ff.read()
             text_widget.insert("1.0", content)
             text_widget.configure(state="disabled")
-            text_widget.pack(fill="both", expand=True, padx=10, pady=8)
-            ctk.CTkButton(struk_win, text="Tutup", fg_color="red", command=struk_win.destroy).pack(pady=8)
+            text_widget.pack(fill="both", expand=True, padx=15, pady=10)
+            ctk.CTkButton(struk_win, text="Tutup", fg_color="red", command=struk_win.destroy).pack(pady=10)
 
             popup.destroy()
             messagebox.showinfo("Success", f"Pembayaran untuk order {order_id} dikonfirmasi.")
             self.load_orders()
+        # ==================================================================
 
         ctk.CTkButton(popup, text="Konfirmasi Pembayaran (Manual)", fg_color="green", command=confirm_payment).pack(pady=10, fill="x", padx=20)
         ctk.CTkButton(popup, text="Batal / Tutup", fg_color="gray", command=popup.destroy).pack(pady=6, fill="x", padx=20)
 # -----------------------
-# ManageMenuFrame (with image upload)
+# ManageMenuFrame 
 # -----------------------
 class ManageMenuFrame(ctk.CTkFrame):
     CATEGORIES = ["Promo", "Paket", "Minuman", "Dessert"]
@@ -495,24 +501,22 @@ class ManageMenuFrame(ctk.CTkFrame):
 
         self.form_frame = ctk.CTkFrame(self)
         self.form_frame.pack(fill="both", padx=10, pady=10)
-
-        # 1. Nama
+        
         ctk.CTkLabel(self.form_frame, text="Nama Menu:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.entry_name = ctk.CTkEntry(self.form_frame); self.entry_name.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
 
-        # 2. Harga
+        
         ctk.CTkLabel(self.form_frame, text="Harga:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
         self.entry_price = ctk.CTkEntry(self.form_frame); self.entry_price.grid(row=1, column=1, sticky="ew", padx=5, pady=5)
-
-        # 3. Stok (BARU)
+        
         ctk.CTkLabel(self.form_frame, text="Stok Awal:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
         self.entry_stock = ctk.CTkEntry(self.form_frame, placeholder_text="Contoh: 50"); self.entry_stock.grid(row=2, column=1, sticky="ew", padx=5, pady=5)
 
-        # 4. Kategori
+       
         ctk.CTkLabel(self.form_frame, text="Kategori:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
         self.combo_category = ctk.CTkComboBox(self.form_frame, values=self.CATEGORIES); self.combo_category.grid(row=3, column=1, sticky="ew", padx=5, pady=5)
 
-        # 5. Image selection
+        
         ctk.CTkLabel(self.form_frame, text="Gambar:").grid(row=4, column=0, sticky="w", padx=5, pady=5)
         img_btn_frame = ctk.CTkFrame(self.form_frame)
         img_btn_frame.grid(row=4, column=1, sticky="ew", padx=5, pady=5)
@@ -540,7 +544,7 @@ class ManageMenuFrame(ctk.CTkFrame):
                 dest_path = os.path.join(IMAGES_DIR, dest_name)
                 shutil.copy(path, dest_path)
                 self.img_path_var.set(dest_path)
-                
+               
                 pil = Image.open(dest_path).copy()
                 pil.thumbnail((80, 60))
                 tkimg = ImageTk.PhotoImage(pil)
@@ -560,7 +564,7 @@ class ManageMenuFrame(ctk.CTkFrame):
 
     def create_menu_card(self, row):
         card = ctk.CTkFrame(self.menu_list_frame, fg_color="#333333", corner_radius=10)
-        
+       
         # small thumb
         img_path = row.get('image', '') if 'image' in row else ''
         if img_path and os.path.exists(img_path):
@@ -573,16 +577,16 @@ class ManageMenuFrame(ctk.CTkFrame):
                 label_img.pack(side="left", padx=6, pady=6)
             except:
                 pass
-        
+       
         # Info Menu
         ctk.CTkLabel(card, text=f"{row['name']}", font=("Arial", 14, "bold")).pack(side="left", padx=(10, 5), pady=5)
-        
+       
         # Info Harga & Stok (Ditampilkan di card)
         info_text = f"Rp {row['price']} | Stok: {row.get('stock', '0')}"
         ctk.CTkLabel(card, text=info_text, font=("Arial", 12), text_color="yellow").pack(side="left", padx=5)
-        
+       
         ctk.CTkLabel(card, text=f"[{row['category']}]", font=("Arial", 12), text_color="gray").pack(side="left", padx=5)
-        
+       
         btn_edit = ctk.CTkButton(card, text="Edit", width=60, command=lambda i=row['id']: self.edit_menu(i)); btn_edit.pack(side="right", padx=5)
         btn_delete = ctk.CTkButton(card, text="Hapus", width=60, fg_color="red", command=lambda i=row['id']: self.delete_menu(i)); btn_delete.pack(side="right", padx=5)
         return card
@@ -596,22 +600,22 @@ class ManageMenuFrame(ctk.CTkFrame):
 
         if not name or not price or not category or not stock:
             return messagebox.showwarning("Warning", "Semua field (termasuk Stok) harus diisi!")
-        
-        try: 
+       
+        try:
             price = int(price)
             stock = int(stock) # Validasi stok harus angka
-        except: 
+        except:
             return messagebox.showwarning("Warning", "Harga dan Stok harus berupa angka!")
 
         df = get_df("items")
         new_id = f"I{len(df)+1:03d}" if self.selected_item_id is None else self.selected_item_id
-        
+       
         # Simpan stok ke dictionary
         new_item = {
-            "id": new_id, 
-            "name": name, 
-            "price": str(price), 
-            "category": category, 
+            "id": new_id,
+            "name": name,
+            "price": str(price),
+            "category": category,
             "stock": str(stock), # Simpan stok
             "image": img_path
         }
@@ -623,9 +627,9 @@ class ManageMenuFrame(ctk.CTkFrame):
             self.btn_add.configure(text="Tambah Menu")
         else:
             df = pd.concat([df, pd.DataFrame([new_item])], ignore_index=True)
-        
+       
         save_df("items", df)
-        
+       
         # Reset Form
         self.entry_name.delete(0,'end')
         self.entry_price.delete(0,'end')
@@ -633,29 +637,29 @@ class ManageMenuFrame(ctk.CTkFrame):
         self.combo_category.set("")
         self.img_path_var.set("")
         self.lbl_img_preview.configure(image=None, text="(tidak ada)")
-        
+       
         self.load_menu()
 
     def edit_menu(self, item_id):
         df = get_df("items")
         row = df[df['id'] == item_id].iloc[0]
-        
+       
         self.entry_name.delete(0,'end'); self.entry_name.insert(0, row['name'])
         self.entry_price.delete(0,'end'); self.entry_price.insert(0, row['price'])
-        
+       
         # Isi form stok saat edit
         current_stock = row.get('stock', '0')
         self.entry_stock.delete(0, 'end'); self.entry_stock.insert(0, current_stock)
 
         self.combo_category.set(row['category'])
         self.img_path_var.set(row.get('image','') or "")
-        
+       
         if self.img_path_var.get() and os.path.exists(self.img_path_var.get()):
             pil = Image.open(self.img_path_var.get()).copy(); pil.thumbnail((80,60)); tkimg = ImageTk.PhotoImage(pil)
             self.lbl_img_preview.configure(image=tkimg, text=""); self.lbl_img_preview.image = tkimg
         else:
             self.lbl_img_preview.configure(image=None, text="(tidak ada)")
-            
+           
         self.selected_item_id = item_id
         self.btn_add.configure(text="Update Menu & Stok")
 
@@ -690,7 +694,7 @@ class GraphFrame(ctk.CTkFrame):
 class WaiterMapFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
-        
+       
         self.grid_columnconfigure(0, weight=2)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -698,20 +702,20 @@ class WaiterMapFrame(ctk.CTkFrame):
         # Left: Map
         self.left = ctk.CTkFrame(self)
         self.left.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        
+       
         ctk.CTkLabel(self.left, text="DENAH MEJA", font=("Arial", 18, "bold")).pack(pady=15)
         self.map = TableMap(self.left, role="waiter", command_callback=self.on_table_click)
         self.map.pack(expand=True)
-        
+       
         ctk.CTkButton(self.left, text="Refresh Map", command=self.map.refresh_map).pack(pady=20)
 
         # Right: Details
         self.right = ctk.CTkFrame(self)
         self.right.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-        
+       
         self.lbl_title = ctk.CTkLabel(self.right, text="Detail Pesanan", font=("Arial", 18, "bold"))
         self.lbl_title.pack(pady=15)
-        
+       
         self.details_frame = ctk.CTkScrollableFrame(self.right, label_text="Daftar Item")
         self.details_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -720,16 +724,16 @@ class WaiterMapFrame(ctk.CTkFrame):
         df = get_df("orders")
         # Cari order yang aktif di meja tersebut
         mask = (df['customer'] == table_name) & (df['order_progress'] != 'Selesai')
-        
+       
         if df[mask].empty:
             messagebox.showinfo("Info", "Tidak ada order aktif untuk diupdate.")
             return
 
-        # --- LOGIKA BARU: CEK PEMBAYARAN SEBELUM CLEAR MEJA ---
+        #  CEK PEMBAYARAN SEBELUM CLEAR MEJA 
         if new_status == "Selesai":
             # Ambil status pembayaran dari order tersebut
             payment_status = df.loc[mask, 'status'].values[0]
-            
+           
             # Jika belum Paid, tolak aksi
             if payment_status != "Paid":
                 messagebox.showwarning("Ditolak", "Pelanggan BELUM MEMBAYAR!\nHarap hubungi kasir sebelum membersihkan meja.")
@@ -738,13 +742,13 @@ class WaiterMapFrame(ctk.CTkFrame):
 
         # Update status di DataFrame
         df.loc[mask, 'order_progress'] = new_status
-        
+       
         # Simpan CSV
         save_df("orders", df)
-        
+       
         # Refresh Map (Warna meja)
         self.map.refresh_map()
-        
+       
         # Refresh Tampilan Detail (Kanan) agar status langsung berubah di layar
         is_occupied = False if new_status == "Selesai" else True
         self.on_table_click(table_name, is_occupied)
@@ -757,24 +761,24 @@ class WaiterMapFrame(ctk.CTkFrame):
     def on_table_click(self, table_name, is_occupied):
         self.lbl_title.configure(text=f"Pesanan: {table_name}")
         for w in self.details_frame.winfo_children(): w.destroy()
-        
+       
         if not is_occupied:
             ctk.CTkLabel(self.details_frame, text="Meja Kosong / Order Selesai", text_color="gray").pack(pady=20)
             return
 
         df = get_df("orders")
         if df.empty: return
-        
+       
         # Filter active orders for this table
         table_orders = df[ (df['customer'] == table_name) & (df['order_progress'] != 'Selesai')]
-        
+       
         if table_orders.empty:
             ctk.CTkLabel(self.details_frame, text="Tidak ada order aktif", text_color="gray").pack(pady=20)
             return
-            
+           
         total_all = 0
         df_details = get_df("order_details")
-        
+       
         # Aggregate data
         grand_total = 0
         all_items = []
@@ -789,21 +793,21 @@ class WaiterMapFrame(ctk.CTkFrame):
                 items = df_details[df_details['order_id'] == order_id]
                 for _, item in items.iterrows():
                     all_items.append(f"- {item['name']} x{item['qty']}")
-        
+       
         main_card = ctk.CTkFrame(self.details_frame, fg_color="#333", corner_radius=10)
         main_card.pack(fill="x", pady=10, padx=5)
-        
+       
         ctk.CTkLabel(main_card, text=table_name, font=("Arial", 16, "bold"), text_color="#FFD700").pack(pady=(15,5))
 
         # Tampilkan Status Pembayaran & Progress
         ctk.CTkLabel(main_card, text=f"Bayar: {status_paid}", font=("Arial", 12, "bold"), text_color="#2ECC71" if status_paid=="Paid" else "#E74C3C").pack()
-        
+       
         ctk.CTkLabel(main_card, text=f"Progress: {current_status}", font=("Arial", 12, "italic"), text_color="#3498DB").pack(pady=(0, 10))
 
         # Items List
         item_box = ctk.CTkFrame(main_card, fg_color="transparent")
         item_box.pack(fill="x", padx=15, pady=5)
-        
+       
         if not all_items:
             ctk.CTkLabel(item_box, text="(Detail tidak tersedia)", font=("Arial", 11), text_color="gray").pack()
         else:
@@ -831,11 +835,11 @@ class WaiterMapFrame(ctk.CTkFrame):
 
         # Tombol Selesai (Hanya jika ingin membersihkan meja)
         ctk.CTkFrame(main_card, height=1, fg_color="gray").pack(fill="x", padx=20, pady=5)
-        
+       
         # Validasi visual (tombol merah jika belum bayar, meski sudah diproteksi logic di atas)
         btn_text = "SELESAI / CLEAR MEJA"
         btn_color = "#C0392B"
-        
+       
         btn_finish = ctk.CTkButton(main_card, text=btn_text, fg_color=btn_color, hover_color="#922B21", command=lambda: self.update_order_status(table_name, "Selesai"))
         btn_finish.pack(pady=10, padx=20, fill="x")
 

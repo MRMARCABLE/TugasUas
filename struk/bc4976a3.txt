@@ -1,0 +1,15 @@
+===== STRUK PEMBAYARAN =====
+Order ID : bc4976a3
+Tanggal : 2025-12-15 00:31:51
+Meja : Meja 9
+
+-------- DAFTAR ITEM --------
+Item                 Qty    Harga          Subtotal    
+-------------------------------------------------------
+Rice                 1      Rp 5000       Rp 5000    
+
+------------------------------
+TOTAL : Rp 5000
+Metode : QRIS
+Terima kasih!
+=============================

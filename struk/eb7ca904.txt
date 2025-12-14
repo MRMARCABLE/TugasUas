@@ -1,0 +1,19 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : eb7ca904
+Tanggal  : 2025-12-15 00:50:00
+Meja     : Meja 4
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Drink                x 1 @Rp   5000 = Rp     5000
+Rice                 x 1 @Rp   5000 = Rp     5000
+Nugget               x 1 @Rp  12000 = Rp    12000
+French Fries         x 1 @Rp  10000 = Rp    10000
+
+-------------------------------------
+TOTAL    : Rp               32000
+-------------------------------------
+Metode   : QRIS
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

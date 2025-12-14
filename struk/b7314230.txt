@@ -1,0 +1,19 @@
+========== STRUK CAFE ==========
+Order ID : b7314230
+Tanggal  : 2025-12-15 00:38:01
+Meja     : Meja 1
+Kasir    : cashier
+
+-------- DAFTAR PESANAN --------
+Item                 Qty    Harga        Subtotal    
+----------------------------------------------------
+Rice                 1      Rp5000       Rp5000      
+Nugget               1      Rp12000      Rp12000     
+French Fries         1      Rp10000      Rp10000     
+
+-----------------------------------
+TOTAL BAYAR : Rp 27,000
+Metode      : QRIS
+-----------------------------------
+Terima kasih atas kunjungannya!
+================================
