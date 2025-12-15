@@ -165,7 +165,7 @@ class OrderFrame(ctk.CTkFrame):
         self.selected_category = "All"
         self.image_cache = {} 
         # layout
-        self.grid_columnconfigure(0, weight=3)
+        self.grid_columnconfigure(0, weight=4)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -186,7 +186,7 @@ class OrderFrame(ctk.CTkFrame):
 
         self.menu_frame = ctk.CTkScrollableFrame(self.left_frame, label_text="MENU")
         self.menu_frame.pack(fill="both", expand=True)
-
+        
         # right cart
         self.cart_frame = ctk.CTkFrame(self)
         self.cart_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
@@ -224,9 +224,10 @@ class OrderFrame(ctk.CTkFrame):
 
         row, col = 0, 0
         for _, row_data in items.iterrows():
+            # FIXED 4 COLUMNS
             self.create_item_card(row_data).grid(row=row, column=col, padx=10, pady=10, sticky="ew")
             col += 1
-            if col > 2:
+            if col >= 4: 
                 col = 0; row += 1
 
     def create_item_card(self, item):
@@ -271,14 +272,31 @@ class OrderFrame(ctk.CTkFrame):
             self.cart[item_id] = {'name': item['name'], 'price': int(item['price']), 'qty': 1}
         self.update_cart_ui()
 
+    def remove_from_cart(self, item_id):
+        if item_id in self.cart:
+            self.cart[item_id]['qty'] -= 1
+            if self.cart[item_id]['qty'] <= 0:
+                del self.cart[item_id]
+            self.update_cart_ui()
+
     def update_cart_ui(self):
         for w in self.cart_list.winfo_children(): w.destroy()
         total = 0
         for item_id, data in self.cart.items():
-            subtotal = data['price'] * data['qty']; total += subtotal
-            row = ctk.CTkFrame(self.cart_list, fg_color="transparent"); row.pack(fill="x", pady=2)
+            subtotal = data['price'] * data['qty']
+            total += subtotal
+            
+            row = ctk.CTkFrame(self.cart_list, fg_color="#2b2b2b")
+            row.pack(fill="x", pady=2)
+            
+            # Button Remove (-)
+            btn_del = ctk.CTkButton(row, text="-", width=30, height=24, fg_color="#C0392B", 
+                                    command=lambda i=item_id: self.remove_from_cart(i))
+            btn_del.pack(side="left", padx=5, pady=2)
+
             ctk.CTkLabel(row, text=f"{data['name']} x{data['qty']}", font=("Arial", 12)).pack(side="left", padx=5)
             ctk.CTkLabel(row, text=f"Rp {subtotal}", font=("Arial", 12, "bold")).pack(side="right", padx=5)
+            
         self.total_label.configure(text=f"Total: Rp {total}")
 
     def checkout(self):
