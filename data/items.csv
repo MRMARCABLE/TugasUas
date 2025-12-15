@@ -4,3 +4,8 @@ I002,Drink,5000,Beverage,100,banyu.png
 I003,Rice,5000,Food,100,nasi.png
 I004,French Fries,10000,Side,50,kentang.png
 I005,Nugget,12000,Side,50,Nugget.png
+I006,Cappucino,15000,Minuman,50,data\images\a918d8ac.jpg
+I007,Pizza,60000,Food,75,data\images\72210cec.jpg
+I008,Americano,12000,Minuman,75,data\images\b083074d.jpg
+I009,Lava Cake,20000,Dessert,50,data\images\9dfbc22b.png
+I010,Milkshake,18000,Dessert,50,data\images\07d5eeb2.png

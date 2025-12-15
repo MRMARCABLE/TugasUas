@@ -61,6 +61,7 @@ def init_db(): # membuat folder database dan menjalankan file CSV
     # order_details
     if not os.path.exists(FILES["order_details"]):
         pd.DataFrame(columns=["id", "order_id", "item_id", "name", "qty", "subtotal"]).to_csv(FILES["order_details"], index=False)
+
 def get_df(key):
     try:
         df = pd.read_csv(FILES[key], dtype=str) # Membaca file CSV menjadi DataFrame

@@ -1,0 +1,16 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : d4036da7
+Tanggal  : 2025-12-15 08:21:50
+Meja     : Meja 9
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Drink                x11 @Rp   5000 = Rp    55000
+
+-------------------------------------
+TOTAL    : Rp               55000
+-------------------------------------
+Metode   : QRIS
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================
