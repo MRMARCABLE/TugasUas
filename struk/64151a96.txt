@@ -1,0 +1,18 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : 64151a96
+Tanggal  : 2025-12-15 10:50:31
+Meja     : Meja 8
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Cappucino            x 1 @Rp  15000 = Rp    15000
+Nugget               x 1 @Rp  12000 = Rp    12000
+Pizza                x 1 @Rp  60000 = Rp    60000
+
+-------------------------------------
+TOTAL    : Rp               87000
+-------------------------------------
+Metode   : Cash
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

@@ -46,7 +46,7 @@ def init_db(): # membuat folder database dan menjalankan file CSV
                                                                             # menyimpan DataFrame ke file CSV tanpa kolom index otomatis
     # orders
     if not os.path.exists(FILES["orders"]): #database transaksi
-        pd.DataFrame(columns=["order_id", "waiter", "customer", "total", "date", "status", "order_progress"]).to_csv(FILES["orders"], index=False)
+        pd.DataFrame(columns=["order_id", "waiter", "customer", "total", "date", "status", "order_progress", "payment_method"]).to_csv(FILES["orders"], index=False)
     # items
     if not os.path.exists(FILES["items"]):
         items_data = [
@@ -132,7 +132,7 @@ class LoginFrame(ctk.CTkFrame):
         super().__init__(master)
         box = ctk.CTkFrame(self, width=360, height=420, corner_radius=12)
         box.place(relx=0.5, rely=0.5, anchor="center")
-        ctk.CTkLabel(box, text="CAFE GUI", font=("Arial", 24, "bold")).pack(pady=25)
+        ctk.CTkLabel(box, text="CAFE KEL 15", font=("Arial", 24, "bold")).pack(pady=25)
         # Input username dan password
         self.entry_u = ctk.CTkEntry(box, placeholder_text="Username"); self.entry_u.pack(pady=8)
         self.entry_p = ctk.CTkEntry(box, placeholder_text="Password", show="*"); self.entry_p.pack(pady=8)
@@ -266,6 +266,16 @@ class OrderFrame(ctk.CTkFrame):
         if not self.selected_table:
             return messagebox.showwarning("Pilih Meja", "Silahkan klik meja warna HIJAU dahulu")
         item_id = item['id']
+        
+        # Check stock availability
+        df_items = get_df("items")
+        item_row = df_items[df_items['id'] == item_id]
+        if not item_row.empty:
+            current_stock = int(item_row.iloc[0].get('stock', 0))
+            current_qty = self.cart.get(item_id, {}).get('qty', 0)
+            if current_qty + 1 > current_stock:
+                return messagebox.showwarning("Stok Tidak Cukup", f"Stok {item['name']} hanya tersedia {current_stock} unit.")
+        
         if item_id in self.cart:
             self.cart[item_id]['qty'] += 1
         else:
@@ -303,6 +313,17 @@ class OrderFrame(ctk.CTkFrame):
         if not self.cart: return messagebox.showwarning("Empty", "Cart is empty!")
         if not self.selected_table: return messagebox.showwarning("Pilih Meja", "Silahkan pilih meja dahulu")
 
+        # Check stock availability before checkout
+        df_items = get_df("items")
+        for item_id, data in self.cart.items():
+            item_row = df_items[df_items['id'] == item_id]
+            if not item_row.empty:
+                current_stock = int(item_row.iloc[0].get('stock', 0))
+                qty_ordered = data['qty']
+                if qty_ordered > current_stock:
+                    return messagebox.showwarning("Stok Tidak Cukup", 
+                        f"Stok {data['name']} tidak mencukupi.\nTersedia: {current_stock}, Dibutuhkan: {qty_ordered}")
+
         total = sum(d['price'] * d['qty'] for d in self.cart.values())
         order_id = str(uuid.uuid4())[:8]
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -314,7 +335,8 @@ class OrderFrame(ctk.CTkFrame):
             "total": total,
             "date": date,
             "status": "Unpaid",
-            "order_progress": "Belum Dibuat"
+            "order_progress": "Belum Dibuat",
+            "payment_method": ""
         }
 
         df_orders = get_df("orders")
@@ -351,7 +373,14 @@ class CashierFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         ctk.CTkLabel(self, text="PROSES PEMBAYARAN", font=("Arial", 20, "bold")).pack(pady=10)
-        ctk.CTkLabel(self, text="Pilih order berstatus 'Unpaid' lalu proses QRIS", text_color="gray").pack()
+        ctk.CTkLabel(self, text="Pilih order berstatus 'Unpaid' lalu pilih metode pembayaran (Cash/QRIS)", text_color="gray").pack()
+
+        # Daily earnings display
+        earnings_frame = ctk.CTkFrame(self, fg_color="#2b2b2b", corner_radius=8)
+        earnings_frame.pack(fill="x", padx=10, pady=5)
+        self.earnings_label = ctk.CTkLabel(earnings_frame, text="Pendapatan Hari Ini: Rp 0", font=("Arial", 14, "bold"), text_color="#2ECC71")
+        self.earnings_label.pack(pady=8)
+        self.update_daily_earnings()
 
         self.list_frame = ctk.CTkScrollableFrame(self)
         self.list_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -363,8 +392,30 @@ class CashierFrame(ctk.CTkFrame):
 
         self.load_orders()
 
+    def update_daily_earnings(self):
+        """Calculate and display daily earnings from paid orders"""
+        df = get_df("orders")
+        if df.empty:
+            self.earnings_label.configure(text="Pendapatan Hari Ini: Rp 0")
+            return
+        
+        # Filter paid orders from today
+        today = datetime.now().date()
+        df['date'] = pd.to_datetime(df['date'])
+        df['total'] = pd.to_numeric(df['total'], errors='coerce')
+        
+        paid_today = df[(df['status'] == 'Paid') & (df['date'].dt.date == today)]
+        
+        if paid_today.empty:
+            daily_total = 0
+        else:
+            daily_total = paid_today['total'].sum()
+        
+        self.earnings_label.configure(text=f"Pendapatan Hari Ini: Rp {int(daily_total):,}")
+
     def load_orders(self):
         for w in self.list_frame.winfo_children(): w.destroy()
+        self.update_daily_earnings()  # Update daily earnings when refreshing
         df = get_df("orders")
         if df.empty:
             ctk.CTkLabel(self.list_frame, text="Belum ada order").pack(pady=20); return
@@ -401,7 +452,7 @@ class CashierFrame(ctk.CTkFrame):
             ctk.CTkLabel(info_frame, text=f"Total: Rp {row['total']}", font=("Arial", 13, "bold"), text_color="#2ECC71").pack(anchor="w", pady=(5,0))
 
             
-            ctk.CTkButton(card, text="Bayar (QRIS)", width=120, command=lambda oid=row['order_id']: self.open_payment(oid)).pack(side="right", padx=10, pady=10)
+            ctk.CTkButton(card, text="Bayar", width=120, command=lambda oid=row['order_id']: self.open_payment(oid)).pack(side="right", padx=10, pady=10)
 
     def open_payment(self, order_id):
         df = get_df("orders")
@@ -409,31 +460,61 @@ class CashierFrame(ctk.CTkFrame):
         if order.empty:
             return messagebox.showerror("Error", "Order tidak ditemukan")
         order = order.iloc[0]
-        total = order['total']
-
-        payload = f"QRIS|ORDER|{order_id}|TOTAL|{total}"
-        qr = segno.make(payload)
-        buf = io.BytesIO()
-        qr.save(buf, kind="png", scale=6)
-        buf.seek(0)
-        pil_img = Image.open(buf)
-        tk_img = ImageTk.PhotoImage(pil_img)
+        total = float(order['total'])  # Convert to float for calculations
 
         popup = ctk.CTkToplevel(self)
         popup.title(f"Pembayaran {order_id}")
-        popup.geometry("380x520")
+        popup.geometry("400x600")
         popup.grab_set()
 
-        ctk.CTkLabel(popup, text="SCAN QRIS UNTUK PEMBAYARAN", font=("Arial", 14, "bold")).pack(pady=10)
-        lbl = ctk.CTkLabel(popup, image=tk_img, text="")
-        lbl.image = tk_img
-        lbl.pack(pady=8)
-
+        ctk.CTkLabel(popup, text="PILIH METODE PEMBAYARAN", font=("Arial", 16, "bold")).pack(pady=15)
+        
         ctk.CTkLabel(popup, text=f"Order: {order_id}", font=("Arial", 12)).pack()
-        ctk.CTkLabel(popup, text=f"Total: Rp {total}", font=("Arial", 14, "bold"), text_color="lightgreen").pack(pady=6)
-        ctk.CTkLabel(popup, text="Setelah customer membayar via e-wallet, tekan KONFIRMASI.", font=("Arial", 10)).pack(pady=6)
+        ctk.CTkLabel(popup, text=f"Total: Rp {total}", font=("Arial", 14, "bold"), text_color="lightgreen").pack(pady=10)
+
+        # Payment method selection
+        payment_method = tk.StringVar(value="QRIS")
+        
+        payment_frame = ctk.CTkFrame(popup)
+        payment_frame.pack(pady=15, padx=20, fill="x")
+        
+        ctk.CTkLabel(payment_frame, text="Metode Pembayaran:", font=("Arial", 12, "bold")).pack(pady=10)
+        
+        # Store total for use in callbacks
+        self.payment_total = float(total)
+        
+        ctk.CTkRadioButton(payment_frame, text="QRIS", variable=payment_method, value="QRIS", 
+                          command=lambda: self.update_payment_ui(popup, payment_method, order_id, self.payment_total)).pack(pady=5, padx=20, anchor="w")
+        ctk.CTkRadioButton(payment_frame, text="Cash (Tunai)", variable=payment_method, value="Cash", 
+                          command=lambda: self.update_payment_ui(popup, payment_method, order_id, self.payment_total)).pack(pady=5, padx=20, anchor="w")
+
+        # Frame for QR code/cash input (will be shown/hidden based on selection)
+        self.qr_frame = ctk.CTkFrame(popup)
+        self.qr_frame.pack(pady=10, padx=20)
+        
+        # Cash input variables (will be created in update_payment_ui)
+        self.cash_received_entry = None
+        self.change_label = None
+        self.current_total = total  # Store total for calculate_change
+        
+        self.qr_label = None
+        self.update_payment_ui(popup, payment_method, order_id, total)
 
         def confirm_payment():
+            selected_method = payment_method.get()
+            
+            # Validate cash payment
+            cash_received = None
+            change = 0
+            if selected_method == "Cash":
+                try:
+                    cash_received = float(self.cash_received_entry.get().strip())
+                    if cash_received < self.payment_total:
+                        return messagebox.showerror("Error", f"Uang yang diterima (Rp {cash_received:,.0f}) kurang dari total (Rp {self.payment_total:,.0f})")
+                    change = cash_received - self.payment_total
+                except ValueError:
+                    return messagebox.showerror("Error", "Masukkan jumlah uang yang valid")
+            
             df2 = get_df("orders")
            
             if df2[df2['order_id'] == order_id].empty:
@@ -447,8 +528,34 @@ class CashierFrame(ctk.CTkFrame):
 
             df2.loc[df2['order_id'] == order_id, 'status'] = 'Paid'
             df2.loc[df2['order_id'] == order_id, 'order_progress'] = new_progress
+            # Store payment method
+            if 'payment_method' not in df2.columns:
+                df2['payment_method'] = ''
+            df2.loc[df2['order_id'] == order_id, 'payment_method'] = selected_method
            
             save_df("orders", df2)
+
+            # ==================== DECREASE STOCK ====================
+            # Get order details to decrease stock
+            df_details = get_df("order_details")
+            df_items = get_df("items")
+            
+            if not df_details.empty and 'order_id' in df_details.columns:
+                order_items = df_details[df_details['order_id'] == order_id]
+                if not order_items.empty:
+                    for _, order_item in order_items.iterrows():
+                        item_id = order_item['item_id']
+                        qty_ordered = int(order_item['qty'])
+                        
+                        # Find the item in items table
+                        item_mask = df_items['id'] == item_id
+                        if item_mask.any():
+                            current_stock = int(df_items.loc[item_mask, 'stock'].values[0])
+                            new_stock = max(0, current_stock - qty_ordered)  # Prevent negative stock
+                            df_items.loc[item_mask, 'stock'] = str(new_stock)
+                    
+                    save_df("items", df_items)
+            # ========================================================
 
             # ==================== STRUK ====================
             struk_folder = "struk"
@@ -479,7 +586,10 @@ class CashierFrame(ctk.CTkFrame):
                 f.write("\n-------------------------------------\n")
                 f.write(f"TOTAL    : Rp {int(order['total']):>19}\n")
                 f.write("-------------------------------------\n")
-                f.write("Metode   : QRIS\n")
+                f.write(f"Metode   : {selected_method}\n")
+                if selected_method == "Cash" and cash_received is not None:
+                    f.write(f"Tunai    : Rp {int(cash_received):>19}\n")
+                    f.write(f"Kembali  : Rp {int(change):>19}\n")
                 f.write("-------------------------------------\n")
                 f.write("Terima kasih telah berkunjung!\n")
                 f.write("=====================================\n")
@@ -499,12 +609,81 @@ class CashierFrame(ctk.CTkFrame):
             ctk.CTkButton(struk_win, text="Tutup", fg_color="red", command=struk_win.destroy).pack(pady=10)
 
             popup.destroy()
+            self.update_daily_earnings()  # Update daily earnings display
             messagebox.showinfo("Success", f"Pembayaran untuk order {order_id} dikonfirmasi.")
             self.load_orders()
         # ==================================================================
 
-        ctk.CTkButton(popup, text="Konfirmasi Pembayaran (Manual)", fg_color="green", command=confirm_payment).pack(pady=10, fill="x", padx=20)
+        ctk.CTkButton(popup, text="Konfirmasi Pembayaran", fg_color="green", command=confirm_payment).pack(pady=10, fill="x", padx=20)
         ctk.CTkButton(popup, text="Batal / Tutup", fg_color="gray", command=popup.destroy).pack(pady=6, fill="x", padx=20)
+
+    def update_payment_ui(self, popup, payment_method_var, order_id, total):
+        # Clear QR frame
+        for w in self.qr_frame.winfo_children():
+            w.destroy()
+        
+        method = payment_method_var.get()
+        
+        if method == "QRIS":
+            # Generate QR code
+            payload = f"QRIS|ORDER|{order_id}|TOTAL|{total}"
+            qr = segno.make(payload)
+            buf = io.BytesIO()
+            qr.save(buf, kind="png", scale=6)
+            buf.seek(0)
+            pil_img = Image.open(buf)
+            tk_img = ImageTk.PhotoImage(pil_img)
+            
+            ctk.CTkLabel(self.qr_frame, text="SCAN QRIS UNTUK PEMBAYARAN", font=("Arial", 12, "bold")).pack(pady=5)
+            lbl = ctk.CTkLabel(self.qr_frame, image=tk_img, text="")
+            lbl.image = tk_img
+            lbl.pack(pady=8)
+            ctk.CTkLabel(self.qr_frame, text="Setelah customer membayar via e-wallet,\ntekan KONFIRMASI.", font=("Arial", 10), text_color="gray").pack(pady=5)
+        else:
+            # Cash payment with change calculation
+            ctk.CTkLabel(self.qr_frame, text="PEMBAYARAN TUNAI", font=("Arial", 12, "bold"), text_color="#FFD700").pack(pady=10)
+            
+            # Total amount label
+            ctk.CTkLabel(self.qr_frame, text=f"Total Pembayaran: Rp {int(total):,}", font=("Arial", 11, "bold"), text_color="white").pack(pady=5)
+            
+            # Cash received input
+            input_frame = ctk.CTkFrame(self.qr_frame, fg_color="transparent")
+            input_frame.pack(pady=10, padx=10, fill="x")
+            
+            ctk.CTkLabel(input_frame, text="Uang Diterima:", font=("Arial", 11)).pack(side="left", padx=5)
+            self.cash_received_entry = ctk.CTkEntry(input_frame, placeholder_text="Masukkan jumlah uang", width=200)
+            self.cash_received_entry.pack(side="left", padx=5)
+            
+            # Store total as instance variable for calculate_change
+            self.current_total = float(total)
+            
+            # Change label (create before binding)
+            self.change_label = ctk.CTkLabel(self.qr_frame, text="Kembalian: Rp 0", font=("Arial", 12, "bold"), text_color="#2ECC71")
+            self.change_label.pack(pady=5)
+            
+            # Bind after all widgets are created
+            self.cash_received_entry.bind("<KeyRelease>", lambda e: self.calculate_change())
+            self.cash_received_entry.bind("<FocusOut>", lambda e: self.calculate_change())
+            
+            ctk.CTkLabel(self.qr_frame, text="Masukkan jumlah uang yang diterima,\nlalu tekan KONFIRMASI.", font=("Arial", 10), text_color="gray").pack(pady=5)
+    
+    def calculate_change(self):
+        """Calculate and display change when cash received is entered"""
+        if hasattr(self, 'change_label') and hasattr(self, 'cash_received_entry') and hasattr(self, 'current_total'):
+            if self.change_label and self.cash_received_entry:
+                try:
+                    cash_text = self.cash_received_entry.get().strip()
+                    if not cash_text:
+                        self.change_label.configure(text="Kembalian: Rp 0", text_color="#2ECC71")
+                        return
+                    cash_received = float(cash_text)
+                    change = cash_received - self.current_total
+                    if change < 0:
+                        self.change_label.configure(text=f"Kembalian: Kurang Rp {abs(int(change)):,}", text_color="#E74C3C")
+                    else:
+                        self.change_label.configure(text=f"Kembalian: Rp {int(change):,}", text_color="#2ECC71")
+                except ValueError:
+                    self.change_label.configure(text="Kembalian: Rp 0", text_color="#2ECC71")
 # -----------------------
 # ManageMenuFrame 
 # -----------------------
@@ -600,7 +779,7 @@ class ManageMenuFrame(ctk.CTkFrame):
         # Info Menu
         ctk.CTkLabel(card, text=f"{row['name']}", font=("Arial", 14, "bold")).pack(side="left", padx=(10, 5), pady=5)
        
-        # Info Harga & Stok (Ditampilkan di card)
+        # Info Harga & Stok 
         info_text = f"Rp {row['price']} | Stok: {row.get('stock', '0')}"
         ctk.CTkLabel(card, text=info_text, font=("Arial", 12), text_color="yellow").pack(side="left", padx=5)
        
@@ -622,7 +801,7 @@ class ManageMenuFrame(ctk.CTkFrame):
        
         try:
             price = int(price)
-            stock = int(stock) # Validasi stok harus angka
+            stock = int(stock) #  stok harus angka
         except:
             return messagebox.showwarning("Warning", "Harga dan Stok harus berupa angka!")
 
@@ -635,7 +814,7 @@ class ManageMenuFrame(ctk.CTkFrame):
             "name": name,
             "price": str(price),
             "category": category,
-            "stock": str(stock), # Simpan stok
+            "stock": str(stock), 
             "image": img_path
         }
 
@@ -652,7 +831,7 @@ class ManageMenuFrame(ctk.CTkFrame):
         # Reset Form
         self.entry_name.delete(0,'end')
         self.entry_price.delete(0,'end')
-        self.entry_stock.delete(0, 'end') # Reset stok input
+        self.entry_stock.delete(0, 'end') 
         self.combo_category.set("")
         self.img_path_var.set("")
         self.lbl_img_preview.configure(image=None, text="(tidak ada)")
@@ -741,7 +920,7 @@ class WaiterMapFrame(ctk.CTkFrame):
     # Update Status Pesanan
     def update_order_status(self, table_name, new_status):
         df = get_df("orders")
-        # Cari order yang aktif di meja tersebut
+        
         mask = (df['customer'] == table_name) & (df['order_progress'] != 'Selesai')
        
         if df[mask].empty:
@@ -750,10 +929,10 @@ class WaiterMapFrame(ctk.CTkFrame):
 
         #  CEK PEMBAYARAN SEBELUM CLEAR MEJA 
         if new_status == "Selesai":
-            # Ambil status pembayaran dari order tersebut
+            
             payment_status = df.loc[mask, 'status'].values[0]
            
-            # Jika belum Paid, tolak aksi
+            
             if payment_status != "Paid":
                 messagebox.showwarning("Ditolak", "Pelanggan BELUM MEMBAYAR!\nHarap hubungi kasir sebelum membersihkan meja.")
                 return
@@ -765,7 +944,7 @@ class WaiterMapFrame(ctk.CTkFrame):
         # Simpan CSV
         save_df("orders", df)
        
-        # Refresh Map (Warna meja)
+        # Refresh Map 
         self.map.refresh_map()
        
         # Refresh Tampilan Detail (Kanan) agar status langsung berubah di layar
@@ -835,14 +1014,14 @@ class WaiterMapFrame(ctk.CTkFrame):
 
         ctk.CTkFrame(main_card, height=2, fg_color="gray").pack(fill="x", padx=10, pady=10)
 
-        # Grand Total
+        
         ctk.CTkLabel(main_card, text=f"Total: Rp {int(grand_total)}", font=("Arial", 14, "bold"), text_color="#2ECC71").pack(pady=(0,15))
 
-        # --- TOMBOL AKSI ---
+       
         status_frame = ctk.CTkFrame(main_card, fg_color="transparent")
         status_frame.pack(pady=(5,15), fill="x", padx=10)
 
-        # Tombol Update Status (Grid Layout agar rapi)
+        # Tombol Update Status 
         btn_1 = ctk.CTkButton(status_frame, text="Masih Dibuat", width=100, height=30, fg_color="#E67E22", command=lambda: self.update_order_status(table_name, "Masih Dibuatkan"))
         btn_1.grid(row=0, column=0, padx=5, pady=5)
 
@@ -852,10 +1031,10 @@ class WaiterMapFrame(ctk.CTkFrame):
         btn_3 = ctk.CTkButton(status_frame, text="Sudah Diantar", width=100, height=30, fg_color="#2980B9", command=lambda: self.update_order_status(table_name, "Sudah Diantar"))
         btn_3.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
-        # Tombol Selesai (Hanya jika ingin membersihkan meja)
+        
         ctk.CTkFrame(main_card, height=1, fg_color="gray").pack(fill="x", padx=20, pady=5)
        
-        # Validasi visual (tombol merah jika belum bayar, meski sudah diproteksi logic di atas)
+        
         btn_text = "SELESAI / CLEAR MEJA"
         btn_color = "#C0392B"
        
@@ -868,7 +1047,7 @@ class WaiterMapFrame(ctk.CTkFrame):
 class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("CAFE GUI")
+        self.title("CAFE KEL 15")
         self.geometry("1100x700")
         init_db()
         self.container = ctk.CTkFrame(self); self.container.pack(fill="both", expand=True)
@@ -908,4 +1087,4 @@ class MainApp(ctk.CTk):
 
 if __name__ == "__main__":
     app = MainApp()
-    app.mainloop()
+    app.mainloop() 

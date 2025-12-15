@@ -1,0 +1,16 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : 3b4c3b5b
+Tanggal  : 2025-12-15 11:24:15
+Meja     : Meja 8
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Milkshake            x 5 @Rp  18000 = Rp    90000
+
+-------------------------------------
+TOTAL    : Rp               90000
+-------------------------------------
+Metode   : Cash
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

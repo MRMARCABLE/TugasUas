@@ -1,0 +1,20 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : 6c919474
+Tanggal  : 2025-12-15 11:32:31
+Meja     : Meja 7
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Rice                 x 1 @Rp   5000 = Rp     5000
+Drink                x 1 @Rp   5000 = Rp     5000
+French Fries         x 1 @Rp  10000 = Rp    10000
+
+-------------------------------------
+TOTAL    : Rp               20000
+-------------------------------------
+Metode   : Cash
+Tunai    : Rp               30000
+Kembali  : Rp               10000
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

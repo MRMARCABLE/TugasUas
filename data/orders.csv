@@ -1,35 +1,43 @@
-id,waiter,customer,total,date,status,order_id,order_progress
-,Self,Meja 2,25000,2025-12-12 21:51:23,Paid (QRIS),1674bb88,Selesai
-,Self,Meja 1,47000,2025-12-13 20:16:27,Paid (QRIS),9529a676,Selesai
-,Self,Meja 1,25000,2025-12-13 20:32:31,Paid (QRIS),b18f956a,Selesai
-,Self,Meja 1,32000,2025-12-13 20:40:16,Paid (QRIS),01768105,Selesai
-,Self,Meja 5,10000,2025-12-13 20:46:42,Paid (QRIS),a08c04f7,Selesai
-,Self,Meja 1,10000,2025-12-14 00:04:11,Paid (QRIS),da4567f3,Selesai
-,Self,Meja 1,15000,2025-12-14 00:17:43,Pending,05c494e2,Selesai
-,Self,Meja 1,30000,2025-12-14 00:29:03,Paid (QRIS),4e3365e5,Selesai
-,Self,Meja 1,30000,2025-12-14 00:29:57,Paid (QRIS),a3978218,Selesai
-,Self,Meja 5,17000,2025-12-14 00:30:12,Paid (QRIS),03045ca8,Selesai
-,Self,Meja 2,15000,2025-12-14 00:39:47,Paid,4478f299,Selesai
-,Self,Meja 1,150000,2025-12-14 01:05:08,Paid,4e98fa91,Selesai
-,Self,Meja 1,150000,2025-12-14 01:08:40,Paid,703244c6,Selesai
-,Self,Meja 2,10000,2025-12-14 11:00:19,Paid,1f4e4633,Selesai
-,Self,Meja 1,15000,2025-12-14 11:03:03,Paid,bce92ebf,Selesai
-,Self,Meja 1,30000,2025-12-14 11:12:48,Paid,bbeb111b,Selesai
-,Self,Meja 1,10000,2025-12-14 11:17:12,Paid,fa285a21,Selesai
-,Self,Meja 5,27000,2025-12-14 11:17:22,Paid,69f4205f,Selesai
-,Self,Meja 3,45000,2025-12-14 11:17:34,Paid,76aec265,Selesai
-,Self,Meja 1,25000,2025-12-14 11:29:16,Paid,3268224f,Selesai
-,Self,Meja 8,10000,2025-12-14 11:29:23,Paid,d0544d41,Selesai
-,Self,Meja 8,12000,2025-12-14 11:31:51,Paid,8308efa2,Selesai
-,Self,Meja 6,15000,2025-12-14 11:55:59,Paid,323b62dc,Selesai
-,Self,Meja 1,25000,2025-12-14 13:45:45,Paid,4c775758,Selesai
-,Self,Meja 6,37000,2025-12-14 13:46:00,Paid,a8d7a5a2,Selesai
-,Self,Meja 1,25000,2025-12-14 22:58:58,Paid,ee95f588,Selesai
-,Self,Meja 9,25000,2025-12-14 23:53:52,Paid,469623fe,Selesai
-,Self,Meja 9,5000,2025-12-15 00:31:51,Paid,bc4976a3,Selesai
-,Self,Meja 6,54000,2025-12-15 00:36:55,Paid,0bf03a47,Selesai
-,Self,Meja 1,27000,2025-12-15 00:38:01,Paid,b7314230,Selesai
-,Self,Meja 4,32000,2025-12-15 00:50:00,Paid,eb7ca904,Selesai
-,Self,Meja 8,30000,2025-12-15 01:00:27,Paid,0f35eb20,Selesai
-,Self,Meja 8,32000,2025-12-15 08:04:48,Paid,5171900c,Selesai
-,Self,Meja 9,55000,2025-12-15 08:21:50,Paid,d4036da7,Selesai
+id,waiter,customer,total,date,status,order_id,order_progress,payment_method
+,Self,Meja 2,25000,2025-12-12 21:51:23,Paid (QRIS),1674bb88,Selesai,
+,Self,Meja 1,47000,2025-12-13 20:16:27,Paid (QRIS),9529a676,Selesai,
+,Self,Meja 1,25000,2025-12-13 20:32:31,Paid (QRIS),b18f956a,Selesai,
+,Self,Meja 1,32000,2025-12-13 20:40:16,Paid (QRIS),01768105,Selesai,
+,Self,Meja 5,10000,2025-12-13 20:46:42,Paid (QRIS),a08c04f7,Selesai,
+,Self,Meja 1,10000,2025-12-14 00:04:11,Paid (QRIS),da4567f3,Selesai,
+,Self,Meja 1,15000,2025-12-14 00:17:43,Pending,05c494e2,Selesai,
+,Self,Meja 1,30000,2025-12-14 00:29:03,Paid (QRIS),4e3365e5,Selesai,
+,Self,Meja 1,30000,2025-12-14 00:29:57,Paid (QRIS),a3978218,Selesai,
+,Self,Meja 5,17000,2025-12-14 00:30:12,Paid (QRIS),03045ca8,Selesai,
+,Self,Meja 2,15000,2025-12-14 00:39:47,Paid,4478f299,Selesai,
+,Self,Meja 1,150000,2025-12-14 01:05:08,Paid,4e98fa91,Selesai,
+,Self,Meja 1,150000,2025-12-14 01:08:40,Paid,703244c6,Selesai,
+,Self,Meja 2,10000,2025-12-14 11:00:19,Paid,1f4e4633,Selesai,
+,Self,Meja 1,15000,2025-12-14 11:03:03,Paid,bce92ebf,Selesai,
+,Self,Meja 1,30000,2025-12-14 11:12:48,Paid,bbeb111b,Selesai,
+,Self,Meja 1,10000,2025-12-14 11:17:12,Paid,fa285a21,Selesai,
+,Self,Meja 5,27000,2025-12-14 11:17:22,Paid,69f4205f,Selesai,
+,Self,Meja 3,45000,2025-12-14 11:17:34,Paid,76aec265,Selesai,
+,Self,Meja 1,25000,2025-12-14 11:29:16,Paid,3268224f,Selesai,
+,Self,Meja 8,10000,2025-12-14 11:29:23,Paid,d0544d41,Selesai,
+,Self,Meja 8,12000,2025-12-14 11:31:51,Paid,8308efa2,Selesai,
+,Self,Meja 6,15000,2025-12-14 11:55:59,Paid,323b62dc,Selesai,
+,Self,Meja 1,25000,2025-12-14 13:45:45,Paid,4c775758,Selesai,
+,Self,Meja 6,37000,2025-12-14 13:46:00,Paid,a8d7a5a2,Selesai,
+,Self,Meja 1,25000,2025-12-14 22:58:58,Paid,ee95f588,Selesai,
+,Self,Meja 9,25000,2025-12-14 23:53:52,Paid,469623fe,Selesai,
+,Self,Meja 9,5000,2025-12-15 00:31:51,Paid,bc4976a3,Selesai,
+,Self,Meja 6,54000,2025-12-15 00:36:55,Paid,0bf03a47,Selesai,
+,Self,Meja 1,27000,2025-12-15 00:38:01,Paid,b7314230,Selesai,
+,Self,Meja 4,32000,2025-12-15 00:50:00,Paid,eb7ca904,Selesai,
+,Self,Meja 8,30000,2025-12-15 01:00:27,Paid,0f35eb20,Selesai,
+,Self,Meja 8,32000,2025-12-15 08:04:48,Paid,5171900c,Selesai,
+,Self,Meja 9,55000,2025-12-15 08:21:50,Paid,d4036da7,Selesai,
+,Self,Meja 7,120000,2025-12-15 10:44:51,Paid,8ae4e98a,Selesai,Cash
+,Self,Meja 8,87000,2025-12-15 10:50:31,Paid,64151a96,Selesai,Cash
+,Self,Meja 9,20000,2025-12-15 10:53:09,Paid,a2187c1d,Selesai,QRIS
+,Self,Meja 8,90000,2025-12-15 11:24:15,Paid,3b4c3b5b,Selesai,Cash
+,Self,Meja 9,87000,2025-12-15 11:28:10,Paid,09677ba4,Selesai,QRIS
+,Self,Meja 7,20000,2025-12-15 11:32:31,Paid,6c919474,Selesai,Cash
+,Self,Meja 4,5000,2025-12-15 11:35:50,Paid,1dc19161,Selesai,QRIS
+,Self,Meja 8,20000,2025-12-15 11:38:29,Paid,481dc757,Selesai,QRIS
