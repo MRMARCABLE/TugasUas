@@ -1,0 +1,20 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : 789429ab
+Tanggal  : 2025-12-16 11:13:54
+Meja     : Meja 6
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+French Fries         x 1 @Rp  10000 = Rp    10000
+Pizza                x 1 @Rp  60000 = Rp    60000
+Nugget               x 1 @Rp  12000 = Rp    12000
+
+-------------------------------------
+TOTAL    : Rp               82000
+-------------------------------------
+Metode   : Cash
+Tunai    : Rp              100000
+Kembali  : Rp               18000
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

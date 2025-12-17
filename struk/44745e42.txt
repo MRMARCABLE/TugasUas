@@ -1,0 +1,19 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : 44745e42
+Tanggal  : 2025-12-16 10:10:11
+Meja     : Meja 5
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Drink                x 1 @Rp   5000 = Rp     5000
+Rice                 x 1 @Rp   5000 = Rp     5000
+
+-------------------------------------
+TOTAL    : Rp               10000
+-------------------------------------
+Metode   : Cash
+Tunai    : Rp               15000
+Kembali  : Rp                5000
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

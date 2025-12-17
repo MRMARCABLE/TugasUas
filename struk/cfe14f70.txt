@@ -1,0 +1,20 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : cfe14f70
+Tanggal  : 2025-12-16 10:51:18
+Meja     : Meja 1
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Chicken              x 1 @Rp  15000 = Rp    15000
+Rice                 x 1 @Rp   5000 = Rp     5000
+French Fries         x 1 @Rp  10000 = Rp    10000
+
+-------------------------------------
+TOTAL    : Rp               30000
+-------------------------------------
+Metode   : Cash
+Tunai    : Rp               50000
+Kembali  : Rp               20000
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

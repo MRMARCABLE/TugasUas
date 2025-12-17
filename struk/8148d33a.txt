@@ -1,0 +1,18 @@
+========== STRUK PEMBAYARAN ==========
+Order ID : 8148d33a
+Tanggal  : 2025-12-16 10:51:30
+Meja     : Meja 6
+Kasir    : (system)
+
+-------- DAFTAR PESANAN --------
+Chicken              x 1 @Rp  15000 = Rp    15000
+Cappucino            x 1 @Rp  15000 = Rp    15000
+Pizza                x 1 @Rp  60000 = Rp    60000
+
+-------------------------------------
+TOTAL    : Rp               90000
+-------------------------------------
+Metode   : QRIS
+-------------------------------------
+Terima kasih telah berkunjung!
+=====================================

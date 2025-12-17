@@ -383,7 +383,7 @@ class CashierFrame(ctk.CTkFrame):
         btn_frame = ctk.CTkFrame(self)
         btn_frame.pack(fill="x", padx=10, pady=5)
         ctk.CTkButton(btn_frame, text="Refresh", command=self.load_orders).pack(side="left")
-        ctk.CTkButton(btn_frame, text="Refresh & Toggle CSV", command=self.load_orders).pack(side="left", padx=8)
+        ctk.CTkButton(btn_frame, text="Riwayat Transaksi", fg_color="#5F6A6A", command=self.show_history_window).pack(side="left", padx=8)
 
         self.load_orders()
 
@@ -602,6 +602,7 @@ class CashierFrame(ctk.CTkFrame):
 
         ctk.CTkButton(popup, text="Konfirmasi Pembayaran", fg_color="green", command=confirm_payment).pack(pady=10, fill="x", padx=20)
         ctk.CTkButton(popup, text="Batal / Tutup", fg_color="gray", command=popup.destroy).pack(pady=6, fill="x", padx=20)
+        # Payment Logic Verified Updated
 
     def update_payment_ui(self, popup, payment_method_var, order_id, total):
         for w in self.qr_frame.winfo_children():
@@ -662,6 +663,119 @@ class CashierFrame(ctk.CTkFrame):
                         self.change_label.configure(text=f"Kembalian: Rp {int(change):,}", text_color="#2ECC71")
                 except ValueError:
                     self.change_label.configure(text="Kembalian: Rp 0", text_color="#2ECC71")
+
+    def show_history_window(self):
+        win = ctk.CTkToplevel(self)
+        win.title("Riwayat Transaksi")
+        win.geometry("600x500")
+        
+        # Header
+        head = ctk.CTkFrame(win)
+        head.pack(fill="x", padx=10, pady=10)
+        ctk.CTkLabel(head, text="RIWAYAT TRANSAKSI", font=("Arial", 16, "bold")).pack(side="left", padx=10)
+        
+        # Filter Buttons
+        filter_frame = ctk.CTkFrame(win)
+        filter_frame.pack(fill="x", padx=10, pady=(0,10))
+        
+        self.history_filter = "All"
+        self.history_list = ctk.CTkScrollableFrame(win)
+        self.history_list.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        self.lbl_history_total = ctk.CTkLabel(win, text="Total: Rp 0", font=("Arial", 14, "bold"))
+        self.lbl_history_total.pack(pady=10)
+
+        def set_filter(f):
+            self.history_filter = f
+            load_history_data()
+
+        ctk.CTkButton(filter_frame, text="Semua", width=80, command=lambda: set_filter("All")).pack(side="left", padx=5)
+        ctk.CTkButton(filter_frame, text="QRIS", width=80, fg_color="#8E44AD", command=lambda: set_filter("QRIS")).pack(side="left", padx=5)
+        ctk.CTkButton(filter_frame, text="TUNAI (Cash)", width=100, fg_color="#D35400", command=lambda: set_filter("Cash")).pack(side="left", padx=5)
+        ctk.CTkButton(filter_frame, text="Ringkasan Harian", width=120, fg_color="#27AE60", command=lambda: set_filter("Daily")).pack(side="left", padx=5)
+        
+        def load_history_data():
+            for w in self.history_list.winfo_children(): w.destroy()
+            
+            df = get_df("orders")
+            if df.empty: return
+            
+            # Filter Paid only
+            mask = df['status'] == 'Paid'
+            data = df[mask].copy()
+            
+            if data.empty:
+                ctk.CTkLabel(self.history_list, text="Tidak ada data transaksi").pack(pady=20)
+                self.lbl_history_total.configure(text=f"Total: Rp 0")
+                return
+
+            # MODE HARIAN (DAILY SUMMARY)
+            if self.history_filter == "Daily":
+                data['short_date'] = pd.to_datetime(data['date']).dt.date
+                daily_groups = data.groupby('short_date')
+                
+                grand_total = 0
+                # Sort dates descending
+                sorted_dates = sorted(daily_groups.groups.keys(), reverse=True)
+                
+                for d in sorted_dates:
+                    group = daily_groups.get_group(d)
+                    day_total = group['total'].astype(float).sum()
+                    grand_total += day_total
+                    
+                    # Breakdown
+                    cash_total = group[group['payment_method'] == 'Cash']['total'].astype(float).sum()
+                    qris_total = group[group['payment_method'] == 'QRIS']['total'].astype(float).sum()
+                    
+                    card = ctk.CTkFrame(self.history_list, fg_color="#333")
+                    card.pack(fill="x", pady=5)
+                    
+                    # Date Header
+                    ctk.CTkLabel(card, text=str(d), font=("Arial", 14, "bold"), text_color="#FFD700").pack(anchor="w", padx=10, pady=(5,0))
+                    
+                    # Details
+                    detail_frame = ctk.CTkFrame(card, fg_color="transparent")
+                    detail_frame.pack(fill="x", padx=10, pady=5)
+                    
+                    ctk.CTkLabel(detail_frame, text=f"Cash: Rp {int(cash_total):,}", font=("Arial", 11), text_color="#E67E22").pack(side="left")
+                    ctk.CTkLabel(detail_frame, text=f" | ", font=("Arial", 11)).pack(side="left")
+                    ctk.CTkLabel(detail_frame, text=f"QRIS: Rp {int(qris_total):,}", font=("Arial", 11), text_color="#9B59B6").pack(side="left")
+                    
+                    ctk.CTkLabel(detail_frame, text=f"Total: Rp {int(day_total):,}", font=("Arial", 13, "bold"), text_color="#2ECC71").pack(side="right")
+                
+                self.lbl_history_total.configure(text=f"Total Pendapatan (Semua Hari): Rp {int(grand_total):,}")
+                return
+
+            # MODE NORMAL (LIST TRANSAKSI)
+            if self.history_filter != "All":
+                data = data[data['payment_method'] == self.history_filter]
+            
+            if 'date' in data.columns:
+                data = data.sort_values(by='date', ascending=False)
+            
+            total_revenue = 0
+            
+            if data.empty:
+                ctk.CTkLabel(self.history_list, text="Tidak ada data (Sesuai Filter)").pack(pady=20)
+            else:
+                for _, row in data.iterrows():
+                    row_val = float(row['total'])
+                    total_revenue += row_val
+                    
+                    card = ctk.CTkFrame(self.history_list, fg_color="#333")
+                    card.pack(fill="x", pady=2)
+                    
+                    info = f"{row['date']} | Order: {row['order_id']}"
+                    ctk.CTkLabel(card, text=info, font=("Consolas", 11)).pack(side="left", padx=10)
+                    
+                    method = row.get('payment_method', '-')
+                    col = "#2ECC71" if method=="Cash" else "#9B59B6"
+                    ctk.CTkLabel(card, text=f"[{method}]", text_color=col, font=("Arial", 11, "bold")).pack(side="right", padx=5)
+                    ctk.CTkLabel(card, text=f"Rp {int(row_val):,}", font=("Arial", 12, "bold")).pack(side="right", padx=10)
+            
+            self.lbl_history_total.configure(text=f"Total ({self.history_filter}): Rp {int(total_revenue):,}")
+
+        load_history_data()
 # -----------------------
 # ManageMenuFrame 
 # -----------------------

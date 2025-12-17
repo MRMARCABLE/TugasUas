@@ -42,3 +42,8 @@ id,waiter,customer,total,date,status,order_id,order_progress,payment_method
 ,Self,Meja 4,5000,2025-12-15 11:35:50,Paid,1dc19161,Selesai,QRIS
 ,Self,Meja 8,20000,2025-12-15 11:38:29,Paid,481dc757,Selesai,QRIS
 ,Self,Meja 9,20000,2025-12-15 16:58:47,Paid,72931cfe,Selesai,Cash
+,Self,Meja 5,10000,2025-12-16 10:10:11,Paid,44745e42,Selesai,Cash
+,Self,Meja 1,30000,2025-12-16 10:51:18,Paid,cfe14f70,Selesai,Cash
+,Self,Meja 6,90000,2025-12-16 10:51:30,Paid,8148d33a,Selesai,QRIS
+,Self,Meja 1,30000,2025-12-16 11:13:45,Paid,05667b2f,Masih Dibuatkan,QRIS
+,Self,Meja 6,82000,2025-12-16 11:13:54,Paid,789429ab,Masih Dibuatkan,Cash
